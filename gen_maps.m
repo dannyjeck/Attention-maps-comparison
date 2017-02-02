@@ -1,6 +1,6 @@
 % script to turn the various point data sets into (fixation/interest/tap) maps
 
-%% Generate Fixation maps from Chris's study
+%% Generate Fixation maps from Chris's study (Masciocchi et al. 2009)
 sig = 27; %The standard deviation of the gaussian
 fixmaps = cell(100,1);
 fixmaps_points = cell(100,1);
@@ -64,54 +64,7 @@ end
 save('fixation_maps','fixmaps');
 save('fixation_points','fix_points_x','fix_points_y','fix_time','fixmaps_points');
 
-%% Fixation map from first fixation only (Not working right now)
-
-% % sig = 27; %The standard deviation of the gaussian
-% imsize = [768 1024];
-% 
-% %load in the eye data
-% load_eye_data=load('revised_eye_data.mat');
-% eye_data=load_eye_data.revised_final_data;
-% clear load_eye_data
-% 
-% %remove bad data
-% for picture=1:100
-%     for ss=1:21
-%         actual_data = eye_data{picture}{ss}(:,1)>0; %I'm not sure what this does besides remove NaNs 
-%         eye_data{picture}{ss}=eye_data{picture}{ss}(actual_data,:);
-%     end
-% end
-% 
-% [X, Y] = meshgrid(-3*sig:3*sig,-3*sig:3*sig);
-% gauss = 1*exp(-((X.^2)+(Y.^2))./((2*sig)^2));
-% 
-% firstfix_maps = cell(100,1);
-% firstfix_maps_points = cell(100,1);
-% %generate fixation maps
-% for pic = 1:100
-%     pic_data = -1*ones(21,4);
-%     for ss = 1:21
-%         subj_data = eye_data{pic}{ss};
-%         y = round(subj_data(:,3));
-%         x = round(subj_data(:,2));
-%         sel = x>=1 & y>=1 & x<=imsize(2) & y<=imsize(1);
-%         ind = find(sel,1);
-%         if ~isempty(ind)
-%             pic_data(ss,:) = eye_data{pic}{ss}(ind,:); %concatenate subject data
-%         end
-%     end
-%     
-%     y = round(pic_data(:,3));
-% 	x = round(pic_data(:,2));
-%     sel = x>=1 & y>=1 & x<=imsize(2) & y<=imsize(1); %select only valid fixations
-%     firstfix_maps_points{pic} = accumarray([y(sel) x(sel)],1,imsize);
-%     firstfix_maps{pic} = conv2(firstfix_maps_points{pic},gauss,'same');
-% end
-% 
-% save('firstfix_maps','firstfix_maps');
-% save('firstfix_points','firstfix_maps_points');
-
-%% Generate Interest maps from Chris's study
+%% Generate Interest maps from Chris's study (Masciocchi et al. 2009)
 % sig = 27; %The standard deviation of the gaussian
 interest_maps = cell(100,1);
 interest_maps_points = cell(100,1);
@@ -162,7 +115,7 @@ end
 save('interest_maps','interest_maps');
 save('interest_points','all_x_points_int','all_y_points_int','interest_maps_points');
 
-%% Generate tap map (subjective salience) map
+%% Generate tap maps Jeck et al. (submitted Sept 2016)
 
 data_dir = './tap_data252/';
 % sig = 27; %The standard deviation of the gaussian
@@ -172,7 +125,7 @@ tap_maps = cell(80,1);
 tap_maps_points = cell(80,1);
 
 
-% get all the data
+% Read all the data from text files
 Nsubj = 252;
 subj = cell(Nsubj,1);
 for k = 1:Nsubj
@@ -193,8 +146,8 @@ end
 
 % Organize onto the images
 first_tap = false;
-img_list = 1:80;
-Nimg = length(img_list);
+img_list = 31:80; %skip the 30 simple scenes
+% Nimg = length(img_list);
 image_data = repmat(struct('Xdata',[],'Ydata',[],'RT',[]),80,1);
 for k = 1:Nsubj
     if first_tap;
@@ -229,6 +182,7 @@ save('tap_maps','tap_maps');
 save('tap_points','tap_points','tap_maps_points');
 
 %% Format Saliency maps generated using the virtualbox version of Itti's saliency
+%http://ilab.usc.edu/toolkit/downloads-virtualbox.shtml
 
 salmaps = cell(48,1);
 % fixmaps_points = cell(100,1);
@@ -241,33 +195,3 @@ for k = 1:length(salmaps)
 end
 
 save('salmaps','salmaps')
-
-%% Format Saliency maps generated using the virtualbox version of Itti's saliency
-
-salmaps = cell(48,1);
-% fixmaps_points = cell(100,1);
-imsize = [768 1024];
-
-for k = 1:length(salmaps)
-    
-    im = imread(['./sal_data/salMap' num2str(30+k) '-SM00.png']);
-    salmaps{k} = double(imresize(imrotate(im,-90),imsize));
-end
-
-save('salmaps','salmaps')
-
-
-%% Format Russell Saliency maps
-
-russmaps = cell(48,1);
-imsize = [768 1024];
-
-for k = 1:length(russmaps)
-    
-    im = imread(['./russell_data/Russellmap' num2str(30+k) '.png']);
-    russmaps{k} = double(imresize(imrotate(im,-90),imsize));
-end
-
-save('russmaps','russmaps')
-
-

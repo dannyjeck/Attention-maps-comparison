@@ -1,3 +1,5 @@
+% Script to validate the sample error hypothesis test (Figure S2)
+
 %% Parameters
 binsize = 64; %must be a factor of both dimensions of the images (power of 2)
 filtflag = false;
