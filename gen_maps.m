@@ -115,7 +115,7 @@ end
 save('interest_maps','interest_maps');
 save('interest_points','all_x_points_int','all_y_points_int','interest_maps_points');
 
-%% Generate tap maps Jeck et al. (submitted Sept 2016)
+%% Generate tap maps Jeck et al. (submitted Sept 2016 to Vision Research)
 
 data_dir = './tap_data252/';
 % sig = 27; %The standard deviation of the gaussian
