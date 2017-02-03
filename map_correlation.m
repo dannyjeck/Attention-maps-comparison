@@ -15,16 +15,14 @@ end
 % load('interest_maps_firstclick.mat') %variable: interest_maps
 % load('tap_maps.mat')      %variable: tap_maps
 load('salmaps.mat');      %variable: salmaps
-load('russmaps.mat'); %variable: russmaps
+% load('russmaps.mat'); %variable: russmaps
 
 
 load('fixation_points.mat');
 
-if firstInterestPoint
-    load('interest_points_firstclick.mat');
-else
-    load('interest_points.mat');
-end
+
+load('interest_points.mat');
+
 
 load('tap_points.mat');
 
@@ -54,7 +52,7 @@ fix_points_x = fix_points_x(list);
 tap_points = tap_points(list);
 all_x_points_int = all_x_points_int(list);
 salmaps = salmaps(list);
-russmaps = russmaps(list);
+% russmaps = russmaps(list);
 
 %% Upper bound analysis params
 Nresamp=1000; %number of times to resample the appropriate map
@@ -83,7 +81,7 @@ for pic = 1:length(fixmaps)
     interest_maps{pic} = downsize_map(interest_maps{pic},binsize);
     tap_maps{pic} = downsize_map(tap_maps{pic},binsize);
     salmaps{pic} = downsize_map(salmaps{pic},binsize);
-    russmaps{pic} = downsize_map(russmaps{pic},binsize);
+%     russmaps{pic} = downsize_map(russmaps{pic},binsize);
 end
 
 tap_mean = zeros(size(tap_maps{1}));
@@ -131,20 +129,20 @@ subplot(234)
 imagesc(salmaps{inx}); colormap('gray');
 title('Saliency map (Itti 1998)');
 subplot(235)
-imagesc(russmaps{inx}); colormap('gray');
-title('Saliency map (Russell et al., 2014)'); 
-boldify
+% imagesc(russmaps{inx}); colormap('gray');
+% title('Saliency map (Russell et al., 2014)'); 
+% boldify
 
 %% Compute True correlations
 
-R_true = zeros(5,5,length(fixmaps));
+R_true = zeros(4,4,length(fixmaps));
 for pic = 1:length(fixmaps)
     fix = fixmaps{pic}(:);
     int = interest_maps{pic}(:);
     tap = tap_maps{pic}(:);
     sal = salmaps{pic}(:);
-    russ = russmaps{pic}(:);
-    R_true(:,:,pic) = corrcoef([fix int tap sal russ]);
+%     russ = russmaps{pic}(:);
+    R_true(:,:,pic) = corrcoef([fix int tap sal]);
 end
 
 Rfixint = squeeze(R_true(1,2,:));
@@ -152,11 +150,11 @@ Rfixtap = squeeze(R_true(1,3,:));
 Rinttap = squeeze(R_true(2,3,:));
 Rtapsal = squeeze(R_true(3,4,:));
 Rfixsal = squeeze(R_true(1,4,:));
-Rfixruss = squeeze(R_true(1,5,:));
+% Rfixruss = squeeze(R_true(1,5,:));
 Rintsal = squeeze(R_true(2,4,:));
 
 
-save('corr_true','R_true','Rfixint','Rfixtap','Rinttap','Rtapsal','Rfixsal','Rfixruss','Rintsal','remove_center_bias','shift_bias_correct');
+save('corr_true','R_true','Rfixint','Rfixtap','Rinttap','Rtapsal','Rfixsal','Rintsal','remove_center_bias','shift_bias_correct');
 
 Ravg = mean(R_true,3);
 
@@ -175,7 +173,7 @@ Rfixtap_rand = zeros(length(fixmaps),length(fixmaps));
 Rinttap_rand = zeros(length(fixmaps),length(fixmaps));
 Rfixsal_rand = zeros(length(fixmaps),length(fixmaps));
 Rtapsal_rand = zeros(length(fixmaps),length(fixmaps));
-Rfixruss_rand = zeros(length(fixmaps),length(fixmaps));
+% Rfixruss_rand = zeros(length(fixmaps),length(fixmaps));
 Rintsal_rand = zeros(length(fixmaps),length(fixmaps));
 
 for pic1 = 1:length(fixmaps)
@@ -205,10 +203,10 @@ for pic1 = 1:length(fixmaps)
         R = corrcoef(fix,sal);
         Rfixsal_rand(pic1,pic2) = R(1,2);
         
-        fix = fixmaps{pic1}(:);
-        russ = russmaps{pic2}(:);
-        R = corrcoef(fix,russ);
-        Rfixruss_rand(pic1,pic2) = R(1,2);
+%         fix = fixmaps{pic1}(:);
+%         russ = russmaps{pic2}(:);
+%         R = corrcoef(fix,russ);
+%         Rfixruss_rand(pic1,pic2) = R(1,2);
 
         int = interest_maps{pic1}(:);
         sal = salmaps{pic2}(:);
@@ -222,43 +220,41 @@ for pic1 = 1:length(fixmaps)
     end
 end
 
-save('corr_rand','Rfixint_rand','Rfixtap_rand','Rinttap_rand','Rtapsal_rand', 'Rfixsal_rand', 'Rfixruss_rand','Rintsal_rand');
+save('corr_rand','Rfixint_rand','Rfixtap_rand','Rinttap_rand','Rtapsal_rand', 'Rfixsal_rand', 'Rintsal_rand');
 
-%% Generate "upper bound" correllation of interest and fixation based on resampling from interest maps
+%% Generate sample error hypothesis correllation between interest and fixation by resampling from interest maps
 
-R_upper_intfix = R_upper(interest_maps,interest_maps,Npoints_fix,Nresamp,sig,filtflag);
-save('R_upper_intfix','R_upper_intfix');
-
-
-%% Generate "upper bound" correllation of taps and fixations based on resampling from fixation maps
-
-R_upper_fixtap = R_upper(fixmaps,fixmaps,Npoints_tap,Nresamp,sig,filtflag);
-save('R_upper_fixtap','R_upper_fixtap');
+R_samp_err_intfix = R_samp_err(interest_maps,interest_maps,Npoints_fix,Nresamp,sig,filtflag);
+save('R_samp_err_intfix','R_samp_err_intfix');
 
 
-%% Generate "upper bound" correllation of interest and taps based on resampling from interest maps
+%% Generate sample error hypothesis correllation between taps and fixations by resampling from fixation maps
 
-R_upper_inttap = R_upper(interest_maps,interest_maps,Npoints_tap,Nresamp,sig,filtflag);
-save('R_upper_inttap','R_upper_inttap');
+R_samp_err_fixtap = R_samp_err(fixmaps,fixmaps,Npoints_tap,Nresamp,sig,filtflag);
+save('R_samp_err_fixtap','R_samp_err_fixtap');
+
+
+%% Generate sample error hypothesis correllation between interest and taps by resampling from interest maps
+
+R_samp_err_inttap = R_samp_err(interest_maps,interest_maps,Npoints_tap,Nresamp,sig,filtflag);
+save('R_samp_err_inttap','R_samp_err_inttap');
 
 %% Correllate Interest and Fixation maps using only Ntaps number of interest points
 
-R_intNtaps_fix = R_upper(interest_maps,fixmaps,Npoints_tap,Nresamp,sig,filtflag);
+R_intNtaps_fix = R_samp_err(interest_maps,fixmaps,Npoints_tap,Nresamp,sig,filtflag);
 save('R_intNtaps_fix2','R_intNtaps_fix');
 
-%% Generate "upper bound" correlation of taps to salience based on resampling from saliency maps
+%% Generate sample error hypothesis correlation between taps and computed salience by resampling from saliency maps
 
-R_upper_tapsal = R_upper(salmaps,salmaps,Npoints_tap,Nresamp,sig,filtflag);
-save('R_upper_tapsal','R_upper_tapsal');
+R_samp_err_tapsal = R_samp_err(salmaps,salmaps,Npoints_tap,Nresamp,sig,filtflag);
+save('R_samp_err_tapsal','R_samp_err_tapsal');
 
-%% Generate "upper bound" correlation of fixations to salience based on resampling from saliency maps
-R_upper_fixsal = R_upper(salmaps,salmaps,Npoints_fix,Nresamp,sig,filtflag);
-save('R_upper_fixsal','R_upper_fixsal');
+%% Generate sample error hypothesis correlation between fixations and computed salience by resampling from saliency maps
 
-%% Generate "upper bound" correlation of fixations to russell salience based on resampling from saliency maps
-R_upper_fixruss = R_upper(russmaps,russmaps,Npoints_fix,Nresamp,sig,filtflag);
-save('R_upper_fixruss','R_upper_fixruss');
+R_samp_err_fixsal = R_samp_err(salmaps,salmaps,Npoints_fix,Nresamp,sig,filtflag);
+save('R_samp_err_fixsal','R_samp_err_fixsal');
 
-%%
-R_upper_intsal = R_upper(salmaps,salmaps,Npoints_int,Nresamp,sig,filtflag);
-save('R_upper_intsal','R_upper_intsal');
+%% Generate sample error hypothesis correlation between interest and computed salience by resampling from saliency maps
+
+R_samp_err_intsal = R_samp_err(salmaps,salmaps,Npoints_int,Nresamp,sig,filtflag);
+save('R_samp_err_intsal','R_samp_err_intsal');

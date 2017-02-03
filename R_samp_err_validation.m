@@ -13,16 +13,13 @@ rem_list = [];
 % load('interest_maps_firstclick.mat') %variable: interest_maps
 % load('tap_maps.mat')      %variable: tap_maps
 load('salmaps.mat');      %variable: salmaps
-load('russmaps.mat'); %variable: russmaps
 
 
 load('fixation_points.mat');
 
-if firstInterestPoint
-    load('interest_points_firstclick.mat');
-else
-    load('interest_points.mat');
-end
+
+load('interest_points.mat');
+
 
 load('tap_points.mat');
 
@@ -52,7 +49,6 @@ fix_points_x = fix_points_x(list);
 tap_points = tap_points(list);
 all_x_points_int = all_x_points_int(list);
 salmaps = salmaps(list);
-russmaps = russmaps(list);
 
 %% Downsample maps
 
@@ -64,7 +60,6 @@ for pic = 1:length(fixmaps)
     interest_maps{pic} = downsize_map(interest_maps{pic},binsize);
     tap_maps{pic} = downsize_map(tap_maps{pic},binsize);
     salmaps{pic} = downsize_map(salmaps{pic},binsize);
-    russmaps{pic} = downsize_map(russmaps{pic},binsize);
 end
 
 tap_mean = zeros(size(tap_maps{1}));
@@ -109,37 +104,29 @@ for pic= 1:length(fixmaps)
     
 end
 
-[X, Y] = meshgrid(-3*sig:3*sig,-3*sig:3*sig);
-gauss = 1*exp(-((X.^2)+(Y.^2))./((2*sig)^2));
-
 
 %%
-% R_upper_intfix_first = R_upper(interest_maps,interest_maps,Npoints_fix,Nresamp,sig,filtflag);
 Ntrials = 1000;
-p_Rfixtap_upper = zeros(Ntrials,1);
-p_Rfixtap_upper2 = zeros(Ntrials,1);
-p_Rfixtap_upper3 = zeros(Ntrials,1);
+p_Rfixtap_samp_err = zeros(Ntrials,1);
+p_Rfixtap_samp_err2 = zeros(Ntrials,1);
 
 for k = 1:Ntrials
-    R_upper_fixtap = R_upper(fixmaps,fixmaps,Npoints_tap,Nresamp,sig,filtflag);
-    Rfixtap = R_upper(fixmaps,fixmaps,Npoints_tap,1,sig,filtflag); %only one sample for the data to test against the null
+    R_samp_err_fixtap = R_samp_err(fixmaps,fixmaps,Npoints_tap,Nresamp,sig,filtflag);
+    Rfixtap = R_samp_err(fixmaps,fixmaps,Npoints_tap,1,sig,filtflag); %only one sample for the data to test against the null
     Rfixtap = Rfixtap(:);
     
-    [~, p_Rfixtap_upper(k)] = ztest(mean(Rfixtap),mean(R_upper_fixtap(:)), ...
-        sqrt(var(Rfixtap(:))/length(Rfixtap) + var(mean(R_upper_fixtap))/length(mean(R_upper_fixtap))),0.95,'both');
-    [~, p_Rfixtap_upper3(k)] = ztest(mean(Rfixtap),mean(R_upper_fixtap(:)), var(mean(R_upper_fixtap)),0.95,'both');
+    [~, p_Rfixtap_samp_err(k)] = ztest(mean(Rfixtap),mean(R_samp_err_fixtap(:)), ...
+        sqrt(var(Rfixtap(:))/length(Rfixtap) + var(mean(R_samp_err_fixtap))/length(mean(R_samp_err_fixtap))),0.95,'both');
 
     
-    p_Rfixtap_upper2(k) = (sum(mean(Rfixtap)>mean(R_upper_fixtap,2))+1)/(Nresamp+1);
+    p_Rfixtap_samp_err2(k) = (sum(mean(Rfixtap)>mean(R_samp_err_fixtap,2))+1)/(Nresamp+1);
 
     
-    disp(['k = ' num2str(k) '; pfixint = ' num2str(p_Rfixtap_upper(k)) '/' num2str(p_Rfixtap_upper2(k))]);
+    disp(['k = ' num2str(k) '; pfixint = ' num2str(p_Rfixtap_samp_err(k)) '/' num2str(p_Rfixtap_samp_err2(k))]);
     
 end
 
 figure(1)
-hist(p_Rfixtap_upper,20);
+hist(p_Rfixtap_samp_err,20);
 figure(2)
-hist(p_Rfixtap_upper2,20);
-figure(3)
-hist(p_Rfixtap_upper3,20);
+hist(p_Rfixtap_samp_err2,20);
