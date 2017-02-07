@@ -1,4 +1,7 @@
 % Plot the results of the correlation analyses
+%
+% By Daniel Jeck 2016
+
 load('corr_rand') % correlation results of randomly shuffled pictures (e.g. pic 1 fixation with pic 2 interest)
 load('corr_true'); % correlation results of matched pictures (e.g. pic 1 fixation and interest)
 load('R_samp_err_fixtap'); % correlation of fixations resampled with the number of taps (sample error only cause of <1 correlation)
@@ -7,7 +10,6 @@ load('R_samp_err_inttap'); % correlation of interest resampled with the number o
 load('R_samp_err_tapsal');
 load('R_intNtaps_fix2');
 load('R_samp_err_fixsal');
-% load('R_samp_err_fixruss');
 load('R_samp_err_intsal');
 
 Ravg = mean(R_true,3);
@@ -36,6 +38,7 @@ hold off
 % xlabel('Correlation Value');
 ylabel('Relative Frequency');
 
+% compute p-values
 [~, p_Rfixint] = ztest(mean(Rfixint),mean(Rfixint_rand(:)), ...
     sqrt(var(Rfixint(:))/length(Rfixint) + var(Rfixint_rand(:))/length(Rfixint_rand(:))),0.95,'right'); %two sampled z-test by computing sigma as sqrt(var1/n1+var2/n2)
 [~, p_Rfixint_samp_err] = ztest(mean(Rfixint),mean(R_samp_err_intfix(:)), ...

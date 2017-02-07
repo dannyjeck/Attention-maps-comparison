@@ -2,7 +2,8 @@ function result = downsize_map(map,binsize)
 %result = downsize_map(map,binsize)
 %Takes in a map and downsamples it in binsize x binsize squares. Output matrix is
 %composed of sums of the binsize x binsize blocks in map.
-
+%
+% By Daniel Jeck 2015
 
 n = size(map,1)/binsize;
 m = size(map,2)/binsize;

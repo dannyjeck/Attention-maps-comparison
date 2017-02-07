@@ -1,9 +1,29 @@
 function map_correlation(binsize,filtflag,sig,firstInterestPoint, rem_list)
-% Find the correlations between different types of maps
+% map_correlation(binsize,filtflag,sig,firstInterestPoint, rem_list) finds the correlations
+% between different types of maps
+%
+% Inputs: 
+% binsize   - bin size in pixels for the correlation computation.
+% filtflag  - True if maps are filtered with a Gaussian. Important for the
+%             sample error hypothesis
+% sig       - width of Gaussian used for filtering
+% firstInterestPoint - (not used) flag to select only the first 
+%
+% Computation:
+% Loads the maps and selects the images where stimuli are identical.
+% Downsamples the maps to the appropriate binsize.
+% Calculates the correlation between the various maps. 
+% Computes correlations under the null hypothesis and the sample error hypothesis.
+%
+% Outputs:
+% A set of .mat files containing the correlation values
+%
+% By Daniel Jeck 2015.
 
 %% Parameters
-if nargin==0
-    binsize = 32; %must be a factor of both dimensions of the images (power of 2)
+
+if nargin==0 %default values
+    binsize = 64; %must be a factor of both dimensions of the images (power of 2)
     filtflag = false;
     sig = 27;
     firstInterestPoint = true;
@@ -70,47 +90,46 @@ end
 [X, Y] = meshgrid(-3*sig:3*sig,-3*sig:3*sig);
 gauss = 1*exp(-((X.^2)+(Y.^2))./((2*sig)^2));
 
-
-
-%% Remove center bias (average over all maps of a given type);
-remove_center_bias = false;
-shift_bias_correct = false;
-
+%% Downsample maps to appropriate bin size 
 for pic = 1:length(fixmaps)
     fixmaps{pic} = downsize_map(fixmaps{pic},binsize);
     interest_maps{pic} = downsize_map(interest_maps{pic},binsize);
     tap_maps{pic} = downsize_map(tap_maps{pic},binsize);
     salmaps{pic} = downsize_map(salmaps{pic},binsize);
-%     russmaps{pic} = downsize_map(russmaps{pic},binsize);
 end
 
-tap_mean = zeros(size(tap_maps{1}));
-int_mean = zeros(size(interest_maps{1}));
-fix_mean = zeros(size(fixmaps{1}));
-for pic = 1:length(fixmaps)
-    tap_mean = tap_mean + tap_maps{pic};
-    fix_mean = fix_mean + fixmaps{pic};
-    int_mean = int_mean + interest_maps{pic};
-end
-tap_mean = tap_mean/length(fixmaps);
-fix_mean = fix_mean/length(fixmaps);
-int_mean = int_mean/length(fixmaps);
 
-
-if remove_center_bias
-    for pic = 1:length(fixmaps)
-        fixmaps{pic} = fixmaps{pic} - fix_mean;
-        interest_maps{pic} = interest_maps{pic} - int_mean;
-        tap_maps{pic} = tap_maps{pic} - tap_mean;
-    end
-end
-
-if shift_bias_correct
-    load('bias_calc.mat');
-    for pic = 1:length(fixmaps)
-        tap_maps{pic} = circshift(tap_maps{pic},round([-bias_all(2) bias_all(1)]));
-    end
-end
+%% Not implemented: Remove center bias (average over all maps of a given type);
+% remove_center_bias = false;
+% shift_bias_correct = false;
+% 
+% tap_mean = zeros(size(tap_maps{1}));
+% int_mean = zeros(size(interest_maps{1}));
+% fix_mean = zeros(size(fixmaps{1}));
+% for pic = 1:length(fixmaps)
+%     tap_mean = tap_mean + tap_maps{pic};
+%     fix_mean = fix_mean + fixmaps{pic};
+%     int_mean = int_mean + interest_maps{pic};
+% end
+% tap_mean = tap_mean/length(fixmaps);
+% fix_mean = fix_mean/length(fixmaps);
+% int_mean = int_mean/length(fixmaps);
+% 
+% 
+% if remove_center_bias
+%     for pic = 1:length(fixmaps)
+%         fixmaps{pic} = fixmaps{pic} - fix_mean;
+%         interest_maps{pic} = interest_maps{pic} - int_mean;
+%         tap_maps{pic} = tap_maps{pic} - tap_mean;
+%     end
+% end
+% 
+% if shift_bias_correct
+%     load('bias_calc.mat');
+%     for pic = 1:length(fixmaps)
+%         tap_maps{pic} = circshift(tap_maps{pic},round([-bias_all(2) bias_all(1)]));
+%     end
+% end
 
 %% Show maps of an example image
 inx = 71;
@@ -154,18 +173,9 @@ Rfixsal = squeeze(R_true(1,4,:));
 Rintsal = squeeze(R_true(2,4,:));
 
 
-save('corr_true','R_true','Rfixint','Rfixtap','Rinttap','Rtapsal','Rfixsal','Rintsal','remove_center_bias','shift_bias_correct');
+save('corr_true','R_true','Rfixint','Rfixtap','Rinttap','Rtapsal','Rfixsal','Rintsal');
 
 Ravg = mean(R_true,3);
-
-%% Plot all correlations
-
-% for pic = 1:length(fixmaps)
-%     figure(1);
-%     plot(fixmaps{pic}(:),tap_maps{pic}(:),'b.','MarkerSize',0.5)
-% 
-%     pause
-% end
 
 %% Compute correlations from mismatched images
 Rfixint_rand = zeros(length(fixmaps),length(fixmaps));
@@ -173,7 +183,6 @@ Rfixtap_rand = zeros(length(fixmaps),length(fixmaps));
 Rinttap_rand = zeros(length(fixmaps),length(fixmaps));
 Rfixsal_rand = zeros(length(fixmaps),length(fixmaps));
 Rtapsal_rand = zeros(length(fixmaps),length(fixmaps));
-% Rfixruss_rand = zeros(length(fixmaps),length(fixmaps));
 Rintsal_rand = zeros(length(fixmaps),length(fixmaps));
 
 for pic1 = 1:length(fixmaps)
@@ -203,20 +212,10 @@ for pic1 = 1:length(fixmaps)
         R = corrcoef(fix,sal);
         Rfixsal_rand(pic1,pic2) = R(1,2);
         
-%         fix = fixmaps{pic1}(:);
-%         russ = russmaps{pic2}(:);
-%         R = corrcoef(fix,russ);
-%         Rfixruss_rand(pic1,pic2) = R(1,2);
-
         int = interest_maps{pic1}(:);
         sal = salmaps{pic2}(:);
         R = corrcoef(int,sal);
         Rintsal_rand(pic1,pic2) = R(1,2);
-
-%         fix1 = fixmaps{pic1}(:);
-%         fix2 = fixmaps{pic2}(:);
-%         R = corrcoef(fix1,fix2);
-%         Rfixfix_rand(pic1,pic2) = R(1,2);
     end
 end
 

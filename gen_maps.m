@@ -1,5 +1,9 @@
 % script to turn the various point data sets into (fixation/interest/tap) maps
 
+%Code by Daniel Jeck 2015 with portions copied from Chris Masciocchi
+%related to his fixation and interest selection data sets.
+
+
 %% Generate Fixation maps from Chris's study (Masciocchi et al. 2009)
 sig = 27; %The standard deviation of the gaussian
 fixmaps = cell(100,1);
