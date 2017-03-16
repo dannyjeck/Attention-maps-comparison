@@ -18,7 +18,7 @@ Finger pointing is a natural human behavior frequently used to draw attention to
 
 ## Code Usage
 
-main_script.m generates Figure 3 from the paper (the main result). Modify binsize (line 23) to 256  to generate figure 5.
+main_script.m generates Figure 3 from the paper (the main result). Modify line 23 to ```binsize = 256;```  to generate figure 5.
 
 The correlation values under the sample error hypothesis are computed using R_samp_err.m
 
