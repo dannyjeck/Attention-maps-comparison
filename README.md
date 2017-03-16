@@ -1,6 +1,6 @@
 # Attention-maps-comparison
 
-Data and code for comparing the multiple attentional maps described in our recent (2016) Vision Research submission. 
+Data and code for comparing the multiple attentional maps described in our recent (2016) Vision Research submission by Daniel Jeck, Howard Egeth, Michael Qin, and Ernst Niebur.
 
 ## Publication
 
@@ -12,9 +12,9 @@ If you use the code or data here please cite
 Citation to be added.
 ```
 
-## Abstract
+## Abstract (In review)
 
-To be added
+Finger pointing is a natural human behavior frequently used to draw attention to specific parts of sensory input. Since this pointing behavior is likely preceded and/or accompanied by the deployment of attention by the pointing person, we hypothesize that pointing can be used as a natural means of providing self-reports of attention and, in the case of visual input, visual salience.  We here introduce a new method for assessing attentional choice by asking subjects to point to and tap the first place they look at on an image appearing on an electronic tablet screen. Our findings show that the tap data are well-correlated with other measures of attention, including eye fixations and selections of interesting image points, as well as with predictions of a saliency map model. We also develop an analysis method for comparing attentional maps (including fixations, reported points of interest, finger pointing, and computed salience) that takes into account the error in estimating those maps from a finite number of data points. This analysis strengthens our original findings by showing that the measured correlation between attentional maps drawn from identical underlying processes is systematically underestimated.  The underestimation is strongest when the number of samples is small but it is always present.  Our analysis method is not limited to data from attentional paradigms but, instead, it is broadly applicable to measures of similarity made between counts of multinomial data or probability distributions.
 
 ## Code Usage
 
