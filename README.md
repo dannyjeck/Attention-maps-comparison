@@ -9,7 +9,19 @@ Our paper is published at (link to be added).
 If you use the code or data here please cite
 
 ```
-Citation to be added.
+@article{Jeck2017,
+author = {Jeck, Daniel M and Qin, Michael and Egeth, Howard and Niebur, Ernst},
+doi = {10.1016/j.visres.2017.04.001},
+file = {:home/djecklocal/Documents/Mendeley Desktop/Jeck et al. - 2017 - Attentive pointing in natural scenes correlates with other measures of attention.pdf:pdf},
+issn = {0042-6989},
+journal = {Vision Research},
+pages = {54--64},
+publisher = {Elsevier Ltd},
+title = {{Attentive pointing in natural scenes correlates with other measures of attention}},
+url = {http://dx.doi.org/10.1016/j.visres.2017.04.001},
+volume = {135},
+year = {2017}
+}
 ```
 
 ## Abstract (In review)
